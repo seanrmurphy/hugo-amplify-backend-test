@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SAM template with a simple API definition
+Resources:
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        ApiEvent:
+          Type: HttpApi
+      CodeUri: ./main.zip
+      Handler: main
+      Runtime: go1.x
+Transform: AWS::Serverless-2016-10-31
+
