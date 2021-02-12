@@ -8,12 +8,62 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/labstack/gommon/log"
 )
 
-type ContactFormData struct {
-	FromEmail   string `json:"from_email"`
-	MessageBody string `json:"message_body"`
+const (
+	awsRegion = "eu-west-1"
+
+	// should probably be somewhere in an env variable or otherwise not hardcoded...
+	contactRecipientEmail = "sean@gopaddy.ch"
+
+	sender = "sean@gopaddy.ch"
+
+	CharSet = "UTF-8"
+)
+
+func sendMail(name, email, message string) {
+
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(awsRegion)},
+	)
+
+	svc := ses.New(sess)
+
+	subject := "Contact Form Submitted by <" + email + "> " + name
+
+	input := &ses.SendEmailInput{
+		Destination: &ses.Destination{
+			CcAddresses: []*string{
+				aws.String(email)},
+			ToAddresses: []*string{
+				aws.String(contactRecipientEmail),
+			},
+		},
+		Message: &ses.Message{
+			Body: &ses.Body{
+				Text: &ses.Content{
+					Charset: aws.String(CharSet),
+					Data:    aws.String(message),
+				},
+			},
+			Subject: &ses.Content{
+				Charset: aws.String(CharSet),
+				Data:    aws.String(subject),
+			},
+		},
+		Source: aws.String(sender),
+	}
+
+	// Attempt to send the email.
+	_, err = svc.SendEmail(input)
+
+	if err != nil {
+		log.Info("Error sending email: " + err.Error())
+	}
 }
 
 func processFormData(body string) string {
@@ -22,21 +72,14 @@ func processFormData(body string) string {
 	name := values["name"][0]
 	message := values["message"][0]
 	next := values["_next"][0]
-	log.Info("email = " + email)
-	log.Info("name = " + name)
-	log.Info("message = " + message)
-	log.Info("next = " + next)
 
 	sendMail(name, email, message)
 	return next
 }
 
-// Handler handles API requests
-func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-
-	m := req.RequestContext.HTTP.Method
-	p := req.RequestContext.HTTP.Path
-	var b string
+func extractRequestData(req events.APIGatewayV2HTTPRequest) (m, p, b string) {
+	m = req.RequestContext.HTTP.Method
+	p = req.RequestContext.HTTP.Path
 
 	if req.IsBase64Encoded {
 		decoded, err := base64.StdEncoding.DecodeString(req.Body)
@@ -50,13 +93,18 @@ func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.AP
 		b = req.Body
 	}
 
+	return
+}
+
+// Handler handles API requests
+func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
+
+	m, p, b := extractRequestData(req)
 	log.Info("body = " + b)
 
 	if p == "/contact" && m == "POST" {
+		// the return value is where we redirect to...
 		next := processFormData(b)
-		//c := ContactFormData{}
-		//json.Unmarshal([]byte(req.Body), &c)
-		//log.Info("Email addr = " + c.FromEmail)
 
 		h := make(map[string]string)
 		h["Location"] = next
