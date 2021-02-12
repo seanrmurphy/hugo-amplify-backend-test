@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/base64"
 	"net/http"
+	"net/url"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,52 +16,63 @@ type ContactFormData struct {
 	MessageBody string `json:"message_body"`
 }
 
-//var e *echo.Echo
-//var echoAdapter *echoadapter.EchoLambda
-//var nullHandler = false
+func processFormData(body string) string {
+	values, _ := url.ParseQuery(body)
+	email := values["email"][0]
+	name := values["name"][0]
+	message := values["message"][0]
+	next := values["_next"][0]
+	log.Info("email = " + email)
+	log.Info("name = " + name)
+	log.Info("message = " + message)
+	log.Info("next = " + next)
 
-//// Lambda mode determines whether this is run locally or remotely
-//var lambdaMode = true
+	sendMail(name, email, message)
+	return next
+}
 
 // Handler handles API requests
 func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
-	//r := core.RequestAccessor{}
-	//httpRequest, err := r.ProxyEventToHTTPRequest(req)
-	//eventString := fmt.Sprintf("Event = %v", req)
-	//log.Info(eventString)
-	//httpRequestString := fmt.Sprintf("Request = %v", httpRequest)
-	log.Info("method = " + req.RequestContext.HTTP.Method)
+	m := req.RequestContext.HTTP.Method
+	p := req.RequestContext.HTTP.Path
+	var b string
 
-	//if err != nil {
-	//return events.APIGatewayProxyResponse{
-	//StatusCode: http.StatusForbidden,
-	//Body:       `{"message": "Error converting from event to http request."}`,
-	//}, nil
-	//}
-
-	if req.RequestContext.HTTP.Method == "GET" {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusForbidden,
-			Body:       `{"message": "HTTP GET method not supported on this endpoint."}`,
-		}, nil
+	if req.IsBase64Encoded {
+		decoded, err := base64.StdEncoding.DecodeString(req.Body)
+		if err != nil {
+			log.Info("Error decoding base64 encoded string.")
+			b = "nil"
+		} else {
+			b = string(decoded)
+		}
+	} else {
+		b = req.Body
 	}
 
-	if req.RequestContext.HTTP.Method == "POST" {
-		c := ContactFormData{}
-		json.Unmarshal([]byte(req.Body), &c)
-		log.Info("Email addr = " + c.FromEmail)
+	log.Info("body = " + b)
+
+	if p == "/contact" && m == "POST" {
+		next := processFormData(b)
+		//c := ContactFormData{}
+		//json.Unmarshal([]byte(req.Body), &c)
+		//log.Info("Email addr = " + c.FromEmail)
+
+		h := make(map[string]string)
+		h["Location"] = next
 
 		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusOK,
+			StatusCode: http.StatusFound,
+			Headers:    h,
 			Body:       `{"message": "Will respond to email addr asap..."}`,
 		}, nil
 	}
 
 	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusForbidden,
-		Body:       `{"message": "Unexpected HTTP method not supported on this endpoint."}`,
+		StatusCode: http.StatusNotFound,
+		Body:       `{"message": "Resource not found on this endpoint."}`,
 	}, nil
+
 }
 
 func main() {

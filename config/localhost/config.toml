@@ -1,2 +1,7 @@
-baseURL = "http://localhost:1313/"
+baseURL = "http://localhost:1313"
+
+[server]
+
+[server.headers.values]
+Referer = "http://localhost:1313"
 

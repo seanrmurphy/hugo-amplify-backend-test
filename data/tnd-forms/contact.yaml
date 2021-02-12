@@ -1,6 +1,7 @@
 id: contact
 # if using Formspree
 #formspree_id: sxewrre33
+amplify_id: https://wabcxlzozj.execute-api.eu-west-1.amazonaws.com/contact
 title: Contact Us
 redirect: /thank-you/
 submit: Get in touch

@@ -10,5 +10,6 @@ Resources:
       CodeUri: ./main.zip
       Handler: main
       Runtime: go1.x
+      Policies: AmazonSESFullAccess
 Transform: AWS::Serverless-2016-10-31
 
