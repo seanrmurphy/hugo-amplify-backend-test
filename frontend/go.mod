@@ -1,4 +1,4 @@
-module github.com/seanrmurphy/hugo-amplify-test
+module github.com/seanrmurphy/hugo-amplify-test/frontend
 
 go 1.14
 

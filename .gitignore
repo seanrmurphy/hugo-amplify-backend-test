@@ -6,3 +6,5 @@ _vendor
 backend/main
 backend/backend
 backend/backend.zip
+frontend/_vendor
+frontend/_vendor/
