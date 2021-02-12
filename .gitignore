@@ -1,2 +1,4 @@
 ./backend/samconfig.toml
 public/*
+main.zip
+backend/main.zip
