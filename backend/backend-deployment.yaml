@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS SAM template with a simple API definition
+Transform: AWS::Serverless-2016-10-31
 Resources:
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -11,5 +12,4 @@ Resources:
       Handler: backend
       Runtime: go1.x
       Policies: AmazonSESFullAccess
-Transform: AWS::Serverless-2016-10-31
 
