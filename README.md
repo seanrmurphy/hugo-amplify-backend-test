@@ -11,7 +11,7 @@ sandbox mode requires AWS approval. These constraints, however, were not a block
 here as all that was necessary was to be able to send an email to a single verified
 email address when someone fills out the contact form.
 
-For more information, there is a medium post on this project here.
+For more information, there is a medium post on this project [here](https://seanrmurphy.medium.com/hugo-aws-amplify-and-a-sneaky-lambda-backend-4b5c47ba8382).
 
 As you will need to register a webhook with the repo, you will need to make a
 fork of this to deploy it to Amplify.
