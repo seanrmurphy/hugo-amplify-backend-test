@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SAM template with a simple API definition
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        ApiEvent:
+          Type: HttpApi
+      # should add path and method here...
+      CodeUri: ./backend.zip
+      Handler: backend
+      Runtime: go1.x
+      Policies: AmazonSESFullAccess
+
