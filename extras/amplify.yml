@@ -4,10 +4,11 @@ frontend:
     # IMPORTANT - Please verify your build commands
     preBuild:
       commands:
-        - cd frontend
+      - curl -OL https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+      - tar -C /usr/local -xzf ./go1.15.7.linux-amd64.tar.gz
     build:
       commands:
-        - hugo
+      - PATH=$PATH:/usr/local/go/bin hugo
   artifacts:
     # IMPORTANT - Please verify your build output directory
     baseDirectory: /frontend/public
@@ -15,4 +16,3 @@ frontend:
       - '**/*'
   cache:
     paths: []
-

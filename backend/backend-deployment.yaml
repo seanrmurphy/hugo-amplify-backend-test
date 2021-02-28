@@ -8,6 +8,7 @@ Resources:
       Events:
         ApiEvent:
           Type: HttpApi
+      # should add path and method here...
       CodeUri: ./backend.zip
       Handler: backend
       Runtime: go1.x

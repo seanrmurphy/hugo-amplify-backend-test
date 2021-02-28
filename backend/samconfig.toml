@@ -1,9 +1,0 @@
-version = 0.1
-[default]
-[default.deploy]
-[default.deploy.parameters]
-stack_name = "amplify-test-backend"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-2obupc4qyrer"
-s3_prefix = "amplify-test-backend"
-region = "eu-west-1"
-capabilities = "CAPABILITY_IAM"
